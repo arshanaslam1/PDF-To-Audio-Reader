@@ -1,0 +1,8 @@
+celery==5.2.7
+Django==4.0.4
+django-crispy-forms==1.14.0
+gTTS==2.2.4
+Pillow==9.1.1
+PyMuPDF==1.19.6
+pyttsx3==2.90
+redis==4.3.1

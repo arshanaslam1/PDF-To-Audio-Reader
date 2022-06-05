@@ -1,0 +1,165 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <section class="pt-5 pb-5 mt-0  d-flex">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Convert</h4>
+                                    <hr>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <form method="post" action="{% url 'main:pdf-create' %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        {{ form|crispy }}
+                                        <div>
+                                            <div class="col-12 text-center">
+                                                <button name="submit" type="submit" class="btn btn-primary">
+                                                    Convert
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% if object_list %}
+    <section class="pt-5 pb-5 mt-0  d-flex"
+             style="min-height: 80vh;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                    <div class="col-md-3">
+                                        <h6>File</h6>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <h6>Audio rate </h6>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <h6>Volume level </h6>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <h6>Audio voice</h6>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Play</h6>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <h6>Audio File</h6>
+                                    </div>
+                            </div>
+                                <hr>
+                            <div id="r-content">
+                                     {% for object in object_list %}
+                                        <div class="row data-row">
+                                            <input type="hidden" value="{{ object.id }}">
+                                            <div class="col-md-3">
+                                                <a href="{{ object.pdf.url }}">{{ object.pdf|cut:'pdfs/'|truncatechars:25 }}</a>
+                                            </div>
+                                            <div class="col-md-1">
+                                                {{ object.audio_rate }}
+                                            </div>
+                                            <div class="col-md-1">
+                                                {{ object.volume_level }}
+                                            </div>
+                                            <div class="col-md-1">
+                                                {{ object.get_audio_voice_display }}
+                                            </div>
+                                            <div class="col-md-4" id="audio_play{{ object.id }}">
+                                                {% if object.audio_file %}
+                                                    <input type="hidden" value="1">
+                                                <audio src="{{ object.audio_file.url }}" controls="controls"></audio>
+                                                {% else %}
+                                                    <input type="hidden" value="0">
+                                                    <p class="text-center">Processing . . .</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-2 text-center" id="audio_button{{ object.id }}">
+                                                {% if object.audio_file %}
+                                                <a class="btn btn-primary" href="{{ object.audio_file.url }}" target="_self" role="button">Download</a>
+                                                {% else %}
+                                                <img src="{% static "assets/main/img/spinner.gif" %}" alt="Processing" width="40" height="40"/>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                     {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    {% if page_obj %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a href="?page=1" class="page-link">First</a></li>
+                <li class="page-item"><a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><a href="#" class="page-link">First</a></li>
+                <li class="page-item disabled"><a disabled href="" class="page-link">Previous</a></li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item"><a href="?page{{ num }}" class="page-link">{{ num }}</a></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'-3' %}
+                    <li class="page-item"><a href="?page{{ num }}" class="page-link">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item"><a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a></li>
+                <li class="page-item"><a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last</a></li>
+            {% else %}
+                <li class="page-item disabled"><a href="" class="page-link">Next</a></li>
+                <li class="page-item disabled"><a href="" class="page-link">Last</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+
+
+<script>
+function updateMsg(){
+    $('.data-row').each(function(index, value) {
+        var id = $(this).children('input').val();
+        var status = $(this).children('div').eq(4).find('input').val()
+        if (status==='0'){
+            $.getJSON('/detail/'+id, function (data){
+                if(data[0].audio_file) {
+                    $("#audio_play" + id).empty();
+                    $("#audio_play" + id).append('<input type="hidden" value="1"><audio src="' + data[0].audio_file + '" controls="controls"></audio>');
+                    $("#audio_button" + id).empty();
+                    $("#audio_button" + id).append('<a class="btn btn-primary" href="' + data[0].audio_file + '" target="_self" role="button">Download</a>');
+                }
+            })
+        }
+        setTimeout(updateMsg, 30000);
+    });
+}
+$(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+    setTimeout(updateMsg, 2000);
+});
+</script>
+
+{% endblock content %}

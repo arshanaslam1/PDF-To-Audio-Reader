@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block head_title %}Signup{% endblock %}
+
+{% block content %}
+    <section class="pt-5 pb-5 mt-0 align-items-center d-flex bg-dark"
+             style="min-height: 100vh; background-size: cover; background-image: url({% static "assets/main/img/draw2.png" %});">
+        <div class="container-fluid">
+            <div class="row  justify-content-center align-items-center d-flex-row h-100">
+                <div class="col-12 col-md-4 col-lg-3 h-50 ">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                                    <h4>Sign Up</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <form class="login" method="POST" action="{% url 'register' %}">
+                                        {% csrf_token %}
+                                        {{ form|crispy }}
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-primary btn-block"> Create Account
+                                            </button>
+                                        </div>
+                                        <p class="text-center small">Did have already an account?
+                                            <a href="{% url 'login' %}">Sign In</a>
+                                        </p>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center small mt-3">
+                        <a href="{% url 'password_reset' %}">
+                            Forgot Your password?
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}
