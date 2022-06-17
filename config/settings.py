@@ -165,8 +165,8 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
 
 # CELERY related settings
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+BROKER_URL = 'redis://default:redispw@localhost:55000'
+CELERY_RESULT_BACKEND = 'redis://default:redispw@localhost:55000'
 #CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672'
 #CELERY_RESULT_BACKEND = 'amqp://localhost'
 CELERY_ACCEPT_CONTENT = ['application/json']
